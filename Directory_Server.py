@@ -32,7 +32,7 @@ class directory_server:
         try:
             filepath = names[filename]
         except KeyError:
-            return "file not found"
+            filepath = "file not found"
         finally:
             names.close()
         return filepath
