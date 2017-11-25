@@ -8,7 +8,7 @@ urls = (
 
 class directory_server:
     def GET(self,filename):
-        # To get the absolute path of the file passed. If '*' is passed, get function should return list of filenames
+        # To get the absolute path of the file passed if filename is passed. If '*' is passed, get function should return list of filenames
 
         filepath = ""
         # to return a list of filepaths
