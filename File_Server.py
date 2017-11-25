@@ -1,5 +1,6 @@
 import web
 import os
+import Web_Changed
 
 urls = (
 '/filepath/(.*)', 'file_server'
@@ -14,5 +15,7 @@ def get_file_path(filepath):
 
 
 if __name__=="__main__":
-    app = web.application(urls,globals())
-    app.run()
+    #app = web.application(urls,globals())
+    #app.run()
+    app = Web_Changed.MyWebApp(urls,globals())
+    app.run(port=8081)

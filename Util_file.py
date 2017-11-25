@@ -1,11 +1,13 @@
 import shelve
 
 
-def update_directory_names_file(filename):
+def update_directory_names_file():
     # To update the .dat file with new key data
+    filename = input("Enter filename:")
+    filepath = input("Enter file path:")
     names = shelve.open("Directory_names_file.dat")
     try:
-        filepath = "C:/Users/meenuneenu/Desktop/test/" + filename
+        filepath = filepath + filename
         names[filename] = filepath
     finally:
         names.close()
@@ -15,4 +17,4 @@ def update_directory_names_file(filename):
 
 
 if __name__ == "__main__":
-    update_directory_names_file("test2.txt")
+    update_directory_names_file()

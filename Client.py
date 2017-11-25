@@ -1,10 +1,11 @@
 import requests as req
 import json
 
-url = "http://localhost:8080/filepath/"
+url = "http://localhost:8080/file/"
 
-filepath = input("Enter the file path:")
+filepath = input("Enter the file name:")
 url = url+filepath
 
 response = req.get(url)
-print("File size: ",response.json())
+#print("File: ",response.json())
+print("Response: ",response.text)
