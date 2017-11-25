@@ -8,7 +8,17 @@ urls = (
 
 class file_server:
     def GET(self,filepath):
-        return os.path.getsize(filepath)
+        # To open and read the requested file (filepath is passed).
+        if not filepath:
+            return "Filepath not given"
+        else:
+            if os.path.isfile(filepath):
+                with open(filepath) as f:
+                    return f.read()
+            else:
+                return "File not found"
+
+
 
 def get_file_path(filepath):
     print("filepath")
