@@ -48,6 +48,22 @@ class lock_server:
         return filename_not_locked
 
 
+    def POST(self,filename):
+        # To lock the file if it not filename_not_locked
+        lock_result = ""
+        locks_keys = shelve.open("File_locks.dat")
+        try:
+            semaphore = locks_keys[filename]
+            if semaphore == 0:
+                #filename_not_locked = filename
+                locks_keys[filename] = 1
+                lock_result = "Success locked"
+        except KeyError:
+            lock_result = "file not found"
+        finally:
+            locks_keys.close()
+        return lock_result
+
 
 def get_file_path(filepath):
     print("filepath")
