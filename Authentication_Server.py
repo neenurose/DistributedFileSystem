@@ -3,6 +3,10 @@ import re
 import base64
 import Web_Changed
 import shelve
+import os
+from cryptography.fernet import Fernet
+
+# The Authentication Server
 
 urls = (
     '/','Index_Auth_Class',
@@ -37,7 +41,30 @@ class Login_Auth_Class:
                 if username in list(client_auth_details.keys()):
                     if password == client_auth_details[username]:
                         #raise web.seeother('/')
-                        return "Authorized!"
+                        session_key = os.urandom(16)
+                        ticket = session_key
+                        ticket_encrypted = Encrypt_Session_Key(ticket)
+                        print("Encrypted Ticket: ",ticket_encrypted)
+                        token = session_key+ticket_encrypted
+                        print("------------------------")
+                        print("Session key: ", session_key)
+                        print("-----------------------")
+                        print("Token: ", token)
+
+                        # Encrypt the token with client password before sending to client
+                        # If the length of the password greater that 32 bytes, only the first 32 bytes are taken as encrypt key
+                        # If the length of the password is less that 32 bytes, password is appended with '0's. So that the length is 32 bytes
+                        if len(password) >= 32:
+                            password_32bytes = password[:32]
+                        else:
+                            letter_count = 32-len(password)
+                            password_32bytes = ''.join(('0') for i in range(letter_count))
+                        encrypt_key_with_password = password+password_32bytes
+                        encrypt_key_with_password_encoded =  base64.urlsafe_b64encode(encrypt_key_with_password.encode())
+                        cipher = Fernet(encrypt_key_with_password_encoded)
+                        token_encrypted = cipher.encrypt(token)
+                        print("Token Encrypted: ",token_encrypted)
+                        return token_encrypted
                     else:
                         authreq = True
                 else:
@@ -51,6 +78,22 @@ class Login_Auth_Class:
             web.header('WWW-Authenticate','Basic realm="Authentication of client"')
             web.ctx.status = '401 Unauthorized'
             return "Not Authorized!"
+
+def Encrypt_Session_Key(ticket):
+    # To encrypt the ticket using a randomly generated key
+    # The method takes the secret_key or encryption_key saved in the file. Using this encryption key the ticket which has session key is encrypted.
+    encryption_key_file = shelve.open("Encrytion_Key_File.dat")
+    try:
+        secret_key = encryption_key_file['1']
+    finally:
+        encryption_key_file.close()
+
+    cipher = Fernet(secret_key)
+    ticket_encrypted = cipher.encrypt(ticket)
+    return ticket_encrypted
+
+
+
 
 if __name__=='__main__':
     app = Web_Changed.MyWebApp(urls,globals())
