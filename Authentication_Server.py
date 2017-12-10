@@ -10,7 +10,8 @@ from cryptography.fernet import Fernet
 
 urls = (
     '/','Index_Auth_Class',
-    '/login','Login_Auth_Class'
+    '/login','Login_Auth_Class',
+    '/getkey','Server_AS_SecretKey_Class'
 )
 
 
@@ -78,6 +79,16 @@ class Login_Auth_Class:
             web.header('WWW-Authenticate','Basic realm="Authentication of client"')
             web.ctx.status = '401 Unauthorized'
             return "Not Authorized!"
+
+class Server_AS_SecretKey_Class:
+    # Get method that is called by other servers to get the secret key that is shared between Authetication Server and other servers.
+    def GET(self):
+        encryption_key_file = shelve.open("Encrytion_Key_File.dat")
+        try:
+            secret_key = encryption_key_file['1']
+        finally:
+            encryption_key_file.close()
+        return secret_key
 
 def Encrypt_Session_Key(ticket):
     # To encrypt the ticket using a randomly generated key
