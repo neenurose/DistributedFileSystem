@@ -4,7 +4,8 @@ import shelve
 import Web_Changed
 
 urls = (
-'/file/lock/(.*)', 'lock_server'
+'/file/lock/(.*)', 'lock_server',
+'/file/unlock/(.*)', 'unlock_server_class'
 )
 
 class lock_server:
@@ -49,20 +50,44 @@ class lock_server:
 
 
     def POST(self,filename):
+        # To lock the file if it is not locked.
+        if not filename:
+            return "Filename not given"
+        else:
+            lock_result = ""
+            locks_keys = shelve.open("File_locks.dat")
+            try:
+                semaphore = locks_keys[filename]
+                if semaphore == 0:
+                    #filename_not_locked = filename
+                    locks_keys[filename] = 1
+                    lock_result = "Success locked"
+            except KeyError:
+                lock_result = "file not found"
+            finally:
+                locks_keys.close()
+            return lock_result
+
+class unlock_server_class:
+    # To unlock the locked file. The semaphore value is changed from 1 to 0.
+    def POST(self,filename):
         # To lock the file if it not filename_not_locked
-        lock_result = ""
-        locks_keys = shelve.open("File_locks.dat")
-        try:
-            semaphore = locks_keys[filename]
-            if semaphore == 0:
-                #filename_not_locked = filename
-                locks_keys[filename] = 1
-                lock_result = "Success locked"
-        except KeyError:
-            lock_result = "file not found"
-        finally:
-            locks_keys.close()
-        return lock_result
+        if not filename:
+            return "Filename not given"
+        else:
+            unlock_result = ""
+            locks_keys = shelve.open("File_locks.dat")
+            try:
+                semaphore = locks_keys[filename]
+                if semaphore == 1:
+                    #filename_not_locked = filename
+                    locks_keys[filename] = 0
+                    lock_result = "unlocked!"
+            except KeyError:
+                unlock_result = "file not found"
+            finally:
+                locks_keys.close()
+            return unlock_result
 
 
 def get_file_path(filepath):
