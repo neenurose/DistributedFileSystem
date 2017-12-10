@@ -14,6 +14,42 @@ response = req.post(url)
 #print("File: ",response.json())
 print("Response: ",response.text)
 '''
+def client_proxy(method, filename):
+    # Calls the directory server.
+    # The filename is encrypted. The ticket is appended with the filename and send.
+    directory_service_url = "http://localhost:8080/file/"
+    message_encrypted = encrypt_message(filename)
+    print("------------")
+    print("message encrypted: ",message_encrypted.decode())
+    print("------------")
+    print("Ticket: ",ticket.decode())
+    print("--------------")
+    message_to_be_send = str(len(str(len(message_encrypted)))) + str(len(message_encrypted)) + str(message_encrypted.decode()) + str(ticket.decode())
+    directory_service_url = directory_service_url+message_to_be_send
+    response = req.get(directory_service_url)
+    print("Response: ",response.text)
+    filepath = response.text
+    filepath_decrypted = decrypt_message_from_server(filepath).decode()
+    print("----------")
+    print("Filepath: ",filepath_decrypted)
+    print("----------")
+    #Check
+def encrypt_message(message):
+    # The message is encrypted using the session key that is passed from Authentication Server.
+    session_key_32bytes = session_key+session_key
+    session_key_32bytes_encoded = base64.urlsafe_b64encode(session_key_32bytes)
+    cipher_session_key = Fernet(session_key_32bytes_encoded)
+    message_encrypted = cipher_session_key.encrypt(message.encode())
+    return message_encrypted
+
+def decrypt_message_from_server(message):
+    # The message that is encrypted and send from server is decrypted using the session key at the client side.
+    session_key_32bytes = session_key+session_key
+    session_key_32bytes_encoded = base64.urlsafe_b64encode(session_key_32bytes)
+    cipher_session_key = Fernet(session_key_32bytes_encoded)
+    message_decrypted = cipher_session_key.decrypt(message.encode())
+    return message_decrypted
+
 
 # HTTP_AUTHORIZATION
 username = input("Enter the user name: ")
@@ -47,3 +83,7 @@ else:
     print("Session_key: ",session_key)
     print("------------")
     print("Ticket: ",ticket)
+
+    method = input("Enter method: ")
+    filename = input("Enter filename: ")
+    client_proxy(method, filename)
