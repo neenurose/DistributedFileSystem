@@ -53,6 +53,7 @@ class lock_server:
         try:
             semaphore = locks_keys[filename]
             if semaphore == 0:
+                print("File",filename)
                 filename_not_locked = filename
                 #locks_keys[filename] = 1
             else:
@@ -121,7 +122,7 @@ class unlock_server_class:
                 if semaphore == 1:
                     #filename_not_locked = filename
                     locks_keys[filename] = 0
-                    lock_result = "unlocked!"
+                    unlock_result = "unlocked!"
             except KeyError:
                 unlock_result = "file not found"
             finally:

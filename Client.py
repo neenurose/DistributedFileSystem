@@ -67,6 +67,26 @@ def client_proxy(method, filename):
         print("Lock: ",lock_decrypted)
         print("----------")
 
+        '''
+        # to unlock lock
+        lock_server_url = "http://localhost:8082/file/unlock/"
+        filename_encrypted = encrypt_message(filename)
+        print("------------")
+        print("filename encrypted: ",filename_encrypted.decode())
+        print("------------")
+        print("Ticket: ",ticket.decode())
+        print("--------------")
+        filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
+        lock_server_url = lock_server_url+filename_to_be_send
+        response = req.post(lock_server_url)
+        print("Response: ",response.text)
+        unlock = response.text
+        unlock_decrypted = decrypt_message_from_server(unlock).decode()
+        print("----------")
+        print("UnLock: ",unlock_decrypted)
+        print("----------")
+        '''
+
 
 
 
