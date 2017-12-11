@@ -37,20 +37,24 @@ class directory_server:
             finally:
                 names.close()
             names_str = encrypt_message(names_str,ticket)
-            return names_str
+            return str(len(str(0))) + str(0) + str(names_str.decode())
 
         if not filename:
-            return encrypt_message("No file name found",ticket)
+            return str(len(str(0))) + str(0) + str(encrypt_message("No file name found",ticket).decode())
 
         # when single filename is passed
         names = shelve.open("Directory_names_file.dat")
         try:
             filepath = names[filename]
+            (port,filepath) = (str(8081),filepath)
+            encrypted_filepath = encrypt_message(filepath,ticket)
+            encrypted_port = encrypt_message(port,ticket)
+            filepath = str(len(str(len(encrypted_port)))) + str(len(encrypted_port)) + str(encrypted_port.decode()) + str(encrypted_filepath.decode())
         except KeyError:
-            filepath = "file not found"
+            filepath = str(len(str(0))) + str(0) +str(encrypt_message("file not found",ticket).decode())
         finally:
             names.close()
-        return encrypt_message(filepath,ticket)
+        return filepath
 
 
 def get_server_encryption_key():

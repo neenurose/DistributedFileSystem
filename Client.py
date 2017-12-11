@@ -29,48 +29,37 @@ def client_proxy(method, filename):
     response = req.get(directory_service_url)
     print("Response: ",response.text)
     filepath = response.text
-    filepath_decrypted = decrypt_message_from_server(filepath).decode()
+    (port_encr,filepath_encr) = get_filepath_port(filepath)
+    filepath_decrypted = decrypt_message_from_server(filepath_encr).decode()
+    if len(port_encr) > 0:
+        port_decrypted = decrypt_message_from_server(port_encr).decode()
+        print("----------")
+        print("Port: ",port_decrypted)
+
     print("----------")
     print("Filepath: ",filepath_decrypted)
     print("----------")
+
     #Check if the method is read or write
-    if method == "read":
-        file_server_url = "http://localhost:8081/filepath/"
-        filepath_encrypted = encrypt_message(filepath_decrypted)
-        print("------------")
-        print("filepath encrypted: ",filepath_encrypted.decode())
-        print("------------")
-        filepath_to_be_send = str(len(str(len(filepath_encrypted)))) + str(len(filepath_encrypted)) + str(filepath_encrypted.decode()) + str(ticket.decode())
-        file_server_url = file_server_url+filepath_to_be_send
-        response = req.get(file_server_url)
-        print("Response: ",response.text)
-        filecontent = response.text
-        filecontent_decrypted = decrypt_message_from_server(filecontent).decode()
-        print("----------")
-        print("File content: ",filecontent_decrypted)
-        print("----------")
-    else:
-        payload = input("Enter content to be written into file: ")
+    if len(port_encr) > 0:
+        if method == "read":
+            file_server_url = "http://localhost:8081/filepath/"
+            filepath_encrypted = encrypt_message(filepath_decrypted)
+            print("------------")
+            print("filepath encrypted: ",filepath_encrypted.decode())
+            print("------------")
+            filepath_to_be_send = str(len(str(len(filepath_encrypted)))) + str(len(filepath_encrypted)) + str(filepath_encrypted.decode()) + str(ticket.decode())
+            file_server_url = file_server_url+filepath_to_be_send
+            response = req.get(file_server_url)
+            print("Response: ",response.text)
+            filecontent = response.text
+            filecontent_decrypted = decrypt_message_from_server(filecontent).decode()
+            print("----------")
+            print("File content: ",filecontent_decrypted)
+            print("----------")
+        else:
+            payload = input("Enter content to be written into file: ")
 
-        lock_server_url = "http://localhost:8082/file/lock/"
-        filename_encrypted = encrypt_message(filename)
-        print("------------")
-        print("filename encrypted: ",filename_encrypted.decode())
-        print("------------")
-        print("Ticket: ",ticket.decode())
-        print("--------------")
-        filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
-        lock_server_url = lock_server_url+filename_to_be_send
-        response = req.get(lock_server_url)
-        print("Response: ",response.text)
-        lock = response.text
-        lock_decrypted = decrypt_message_from_server(lock).decode()
-        print("----------")
-        print("Lock: ",lock_decrypted)
-        print("----------")
-
-        if lock_decrypted == filename:
-            # to lock the file
             lock_server_url = "http://localhost:8082/file/lock/"
             filename_encrypted = encrypt_message(filename)
             print("------------")
@@ -80,41 +69,79 @@ def client_proxy(method, filename):
             print("--------------")
             filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
             lock_server_url = lock_server_url+filename_to_be_send
-            response = req.post(lock_server_url)
+            response = req.get(lock_server_url)
             print("Response: ",response.text)
-            tolock = response.text
-            tolock_decrypted = decrypt_message_from_server(tolock).decode()
+            lock = response.text
+            lock_decrypted = decrypt_message_from_server(lock).decode()
             print("----------")
-            print("UnLock: ",tolock_decrypted)
-            print("----------")
-
-
-            # write into file
-            file_server_url = "http://localhost:8081/filepath/"
-            filepath_encrypted = encrypt_message(filepath_decrypted)
-            print("------------")
-            print("filepath encrypted: ",filepath_encrypted.decode())
-            print("------------")
-            filepath_to_be_send = str(len(str(len(filepath_encrypted)))) + str(len(filepath_encrypted)) + str(filepath_encrypted.decode()) + str(ticket.decode())
-            file_server_url = file_server_url+filepath_to_be_send
-
-            # encrypting payload to be written into file
-            payload_encrypted = encrypt_message(payload)
-            print("------------")
-            print("payload encrypted: ",payload_encrypted.decode())
-            print("------------")
-            print("Ticket: ",ticket.decode())
-            print("--------------")
-            payload_to_be_send = str(len(str(len(payload_encrypted)))) + str(len(payload_encrypted)) + str(payload_encrypted.decode()) + str(ticket.decode())
-
-            response = req.post(file_server_url,data=payload_to_be_send)
-            print("Response: ",response.text)
-            filecontent = response.text
-            filecontent_decrypted = decrypt_message_from_server(filecontent).decode()
-            print("----------")
-            print("File write: ",filecontent_decrypted)
+            print("Lock: ",lock_decrypted)
             print("----------")
 
+            if lock_decrypted == filename:
+                # to lock the file
+                lock_server_url = "http://localhost:8082/file/lock/"
+                filename_encrypted = encrypt_message(filename)
+                print("------------")
+                print("filename encrypted: ",filename_encrypted.decode())
+                print("------------")
+                print("Ticket: ",ticket.decode())
+                print("--------------")
+                filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
+                lock_server_url = lock_server_url+filename_to_be_send
+                response = req.post(lock_server_url)
+                print("Response: ",response.text)
+                tolock = response.text
+                tolock_decrypted = decrypt_message_from_server(tolock).decode()
+                print("----------")
+                print("UnLock: ",tolock_decrypted)
+                print("----------")
+
+
+                # write into file
+                file_server_url = "http://localhost:8081/filepath/"
+                filepath_encrypted = encrypt_message(filepath_decrypted)
+                print("------------")
+                print("filepath encrypted: ",filepath_encrypted.decode())
+                print("------------")
+                filepath_to_be_send = str(len(str(len(filepath_encrypted)))) + str(len(filepath_encrypted)) + str(filepath_encrypted.decode()) + str(ticket.decode())
+                file_server_url = file_server_url+filepath_to_be_send
+
+                # encrypting payload to be written into file
+                payload_encrypted = encrypt_message(payload)
+                print("------------")
+                print("payload encrypted: ",payload_encrypted.decode())
+                print("------------")
+                print("Ticket: ",ticket.decode())
+                print("--------------")
+                payload_to_be_send = str(len(str(len(payload_encrypted)))) + str(len(payload_encrypted)) + str(payload_encrypted.decode()) + str(ticket.decode())
+
+                response = req.post(file_server_url,data=payload_to_be_send)
+                print("Response: ",response.text)
+                filecontent = response.text
+                filecontent_decrypted = decrypt_message_from_server(filecontent).decode()
+                print("----------")
+                print("File write: ",filecontent_decrypted)
+                print("----------")
+
+                # to unlock lock
+                lock_server_url = "http://localhost:8082/file/unlock/"
+                filename_encrypted = encrypt_message(filename)
+                print("------------")
+                print("filename encrypted: ",filename_encrypted.decode())
+                print("------------")
+                print("Ticket: ",ticket.decode())
+                print("--------------")
+                filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
+                lock_server_url = lock_server_url+filename_to_be_send
+                response = req.post(lock_server_url)
+                print("Response: ",response.text)
+                unlock = response.text
+                unlock_decrypted = decrypt_message_from_server(unlock).decode()
+                print("----------")
+                print("UnLock: ",unlock_decrypted)
+                print("----------")
+
+            '''
             # to unlock lock
             lock_server_url = "http://localhost:8082/file/unlock/"
             filename_encrypted = encrypt_message(filename)
@@ -132,29 +159,15 @@ def client_proxy(method, filename):
             print("----------")
             print("UnLock: ",unlock_decrypted)
             print("----------")
+            '''
 
-        '''
-        # to unlock lock
-        lock_server_url = "http://localhost:8082/file/unlock/"
-        filename_encrypted = encrypt_message(filename)
-        print("------------")
-        print("filename encrypted: ",filename_encrypted.decode())
-        print("------------")
-        print("Ticket: ",ticket.decode())
-        print("--------------")
-        filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
-        lock_server_url = lock_server_url+filename_to_be_send
-        response = req.post(lock_server_url)
-        print("Response: ",response.text)
-        unlock = response.text
-        unlock_decrypted = decrypt_message_from_server(unlock).decode()
+
+
+    else:
+        msg = method + " is not possible!"
         print("----------")
-        print("UnLock: ",unlock_decrypted)
+        print(msg)
         print("----------")
-        '''
-
-
-
 
 
 
@@ -173,6 +186,26 @@ def decrypt_message_from_server(message):
     cipher_session_key = Fernet(session_key_32bytes_encoded)
     message_decrypted = cipher_session_key.decrypt(message.encode())
     return message_decrypted
+
+def get_filepath_port(message):
+    # get the filename and ticket from the encrypted message.
+    print("----------")
+    print("message: ",message)
+    print("-----------")
+    number_of_digits_of_port_length = int(message[0])
+    encrypted_port_length = int(message[1:number_of_digits_of_port_length+1])
+    encrypted_port = message[number_of_digits_of_port_length+1:(number_of_digits_of_port_length+encrypted_port_length)+1]
+    encrypted_filepath = message[number_of_digits_of_port_length+encrypted_port_length+1:len(message)]
+    print("----------")
+    print("number of digits: ",number_of_digits_of_port_length)
+    print("-----------")
+    print("port length: ",encrypted_port_length)
+    print("----------")
+    print("encrypted port: ",encrypted_port)
+    print("-----------")
+    print("Encrypted filepath:", encrypted_filepath)
+
+    return (encrypted_port,encrypted_filepath)
 
 
 # HTTP_AUTHORIZATION
