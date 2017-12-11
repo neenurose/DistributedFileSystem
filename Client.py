@@ -33,7 +33,43 @@ def client_proxy(method, filename):
     print("----------")
     print("Filepath: ",filepath_decrypted)
     print("----------")
-    #Check
+    #Check if the method is read or write
+    if method == "read":
+        file_server_url = "http://localhost:8081/filepath/"
+        filepath_encrypted = encrypt_message(filepath_decrypted)
+        print("------------")
+        print("filepath encrypted: ",filepath_encrypted.decode())
+        print("------------")
+        filepath_to_be_send = str(len(str(len(filepath_encrypted)))) + str(len(filepath_encrypted)) + str(filepath_encrypted.decode()) + str(ticket.decode())
+        file_server_url = file_server_url+filepath_to_be_send
+        response = req.get(file_server_url)
+        print("Response: ",response.text)
+        filecontent = response.text
+        filecontent_decrypted = decrypt_message_from_server(filecontent).decode()
+        print("----------")
+        print("File content: ",filecontent_decrypted)
+        print("----------")
+    else:
+        lock_server_url = "http://localhost:8082/file/lock/"
+        filename_encrypted = encrypt_message(filename)
+        print("------------")
+        print("filename encrypted: ",filename_encrypted.decode())
+        print("------------")
+        print("Ticket: ",ticket.decode())
+        print("--------------")
+        filename_to_be_send = str(len(str(len(filename_encrypted)))) + str(len(filename_encrypted)) + str(filename_encrypted.decode()) + str(ticket.decode())
+        lock_server_url = lock_server_url+filename_to_be_send
+        response = req.get(lock_server_url)
+        print("Response: ",response.text)
+        lock = response.text
+        lock_decrypted = decrypt_message_from_server(lock).decode()
+        print("----------")
+        print("Lock: ",lock_decrypted)
+        print("----------")
+
+
+
+
 def encrypt_message(message):
     # The message is encrypted using the session key that is passed from Authentication Server.
     session_key_32bytes = session_key+session_key
