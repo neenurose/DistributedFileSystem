@@ -47,12 +47,24 @@ class file_server:
         print("filepath after decryption: ",filepath)
         print("------------")
 
+        payload = web.data().decode()
+        print("payload received: ",payload)
+        print("--------------")
+        (encrypted_message, encrypted_ticket) = get_filename_ticket(payload)
+        print("tuple: ",encrypted_message,"hehe:",encrypted_ticket)
+        ticket = decrypt_ticket_from_client(encrypted_ticket,secret_key)
+        message_to_write_decrypted = decrypt_filename_from_client(encrypted_message,ticket).decode()
+        print("------------")
+        print("Data to be written after decryption: ",message_to_write_decrypted)
+        print("------------")
+
+
         if not filepath:
             return encrypt_message("Filepath not given",ticket)
         else:
             if os.path.isfile(filepath):
                 with open(filepath, 'w') as f:
-                    f.write(web.data().decode())
+                    f.write(message_to_write_decrypted)
                     return encrypt_message("Success",ticket)
             else:
                 return encrypt_message("File not found",ticket)
