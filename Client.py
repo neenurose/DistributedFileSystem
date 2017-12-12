@@ -43,7 +43,7 @@ def client_proxy(method, filename):
     #Check if the method is read or write
     if len(port_encr) > 0:
         if method == "read":
-            file_server_url = "http://localhost:8081/filepath/"
+            file_server_url = "http://localhost:"+port_decrypted+"/filepath/"
             filepath_encrypted = encrypt_message(filepath_decrypted)
             print("------------")
             print("filepath encrypted: ",filepath_encrypted.decode())
@@ -98,7 +98,7 @@ def client_proxy(method, filename):
 
 
                 # write into file
-                file_server_url = "http://localhost:8081/filepath/"
+                file_server_url = "http://localhost:"+port_decrypted+"/filepath/"
                 filepath_encrypted = encrypt_message(filepath_decrypted)
                 print("------------")
                 print("filepath encrypted: ",filepath_encrypted.decode())
