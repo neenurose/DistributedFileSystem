@@ -5,6 +5,7 @@ from cryptography.fernet import Fernet
 import requests as req
 import base64
 
+
 urls = (
 '/file/(.*)', 'directory_server'
 )
@@ -45,8 +46,8 @@ class directory_server:
         # when single filename is passed
         names = shelve.open("Directory_names_file.dat")
         try:
-            filepath = names[filename]
-            (port,filepath) = (str(8081),filepath)
+            (port,filepath) = names[filename]
+            port = str(port)
             encrypted_filepath = encrypt_message(filepath,ticket)
             encrypted_port = encrypt_message(port,ticket)
             filepath = str(len(str(len(encrypted_port)))) + str(len(encrypted_port)) + str(encrypted_port.decode()) + str(encrypted_filepath.decode())

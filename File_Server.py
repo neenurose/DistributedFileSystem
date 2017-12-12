@@ -4,6 +4,7 @@ import Web_Changed
 from cryptography.fernet import Fernet
 import requests as req
 import base64
+import sys
 
 urls = (
 '/filepath/(.*)', 'file_server'
@@ -135,5 +136,9 @@ def get_file_path(filepath):
 if __name__=="__main__":
     #app = web.application(urls,globals())
     #app.run()
+    if len(sys.argv) != 2:
+        print("Please provide port number")
+        exit()
+    port = int(sys.argv[1])
     app = Web_Changed.MyWebApp(urls,globals())
-    app.run(port=8081)
+    app.run(port=port)
