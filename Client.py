@@ -93,7 +93,7 @@ def client_proxy(method, filename):
                 tolock = response.text
                 tolock_decrypted = decrypt_message_from_server(tolock).decode()
                 print("----------")
-                print("UnLock: ",tolock_decrypted)
+                print("Lock: ",tolock_decrypted)
                 print("----------")
 
 
